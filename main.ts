@@ -1,9 +1,15 @@
 import { Plugin, TFile } from 'obsidian';
 
 export default class ImageCleanerPlugin extends Plugin {
-  async onload() {
+  onload() {
     console.log('Loading Image Cleaner…');
-    await this.cleanupImages();
+
+    // Register a listener that fires once the vault/layout is ready
+    this.registerEvent(
+      this.app.workspace.on('layout-ready', () => {
+        this.cleanupImages().catch((e) => console.error('ImageCleaner failed:', e));
+      })
+    );
   }
 
   async cleanupImages() {
