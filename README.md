@@ -1,8 +1,8 @@
 # Obsidian Image Manager Plugin
 
-Plugin works when app is launched (& plugin is enabled)
+Plugin works when app is launched (if plugin is enabled)
 - Moves all images to images/ folder (created in vault root)
-- Deletes thr images that arent referenced in any notes
+- Deletes the images that arent referenced in any notes
 
 ## API Documentation
 
