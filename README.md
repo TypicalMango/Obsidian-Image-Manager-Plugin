@@ -6,5 +6,5 @@ Plugin works when app is launched (& plugin is enabled)
 
 ## API Documentation
 
-sample plugin for Obsidian (https://obsidian.md).
-See https://github.com/obsidianmd/obsidian-api
+- sample plugin for Obsidian (https://obsidian.md).
+- See https://github.com/obsidianmd/obsidian-api
