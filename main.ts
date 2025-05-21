@@ -1,16 +1,41 @@
-import { Plugin, TFile } from 'obsidian';
+import { App, Plugin, TFile, PluginSettingTab, Setting } from 'obsidian';
 
-export default class ImageCleanerPlugin extends Plugin {
-  onload() {
-    console.log('Loading Image Cleaner…');
+interface MyPluginSettings {
+	sweepIconEnabled: boolean;
+}
 
-    // Register a listener that fires once the vault/layout is ready
-    this.registerEvent(
-      this.app.workspace.on('layout-ready', () => {
-        this.cleanupImages().catch((e) => console.error('ImageCleaner failed:', e));
-      })
-    );
+const DEFAULT_SETTINGS: MyPluginSettings = {
+	sweepIconEnabled: true
+}
+
+export default class ImageManagerPlugin extends Plugin {
+  settings: MyPluginSettings;
+  sweepRibbonIconE1: HTMLElement | null = null;
+
+  async onload() {
+    await this.loadSettings();
+    console.log('Loading Image Manager...');
+
+    // Add settings tab
+    this.addSettingTab(new SampleSettingTab(this.app, this));
+
+    // Wait till vault/layout is ready
+    this.app.workspace.onLayoutReady(() => {
+      // Run sweep
+      this.cleanupImages().catch((e) => console.error('ImageManager failed:', e));
+      // Add sweep Icon
+      this.updateSweepRibbonIcon();
+    })
+
   }
+
+  async loadSettings() {
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+	}
+
+	async saveSettings() {
+		await this.saveData(this.settings);
+	}
 
   async cleanupImages() {
     const vault = this.app.vault;
@@ -70,5 +95,46 @@ export default class ImageCleanerPlugin extends Plugin {
     }
 
     console.log('Image cleanup complete.');
+  }
+
+  updateSweepRibbonIcon() {
+    if (this.settings.sweepIconEnabled) {
+      if (!this.sweepRibbonIconE1) {
+        this.sweepRibbonIconE1 = this.addRibbonIcon('book-image', 'Sweep images', (evt: MouseEvent) => {
+          this.cleanupImages().catch((e) => console.error('ImageManager failed:', e));
+        });
+      }
+    } else {
+      if (this.sweepRibbonIconE1) {
+        this.sweepRibbonIconE1.remove();
+        this.sweepRibbonIconE1 = null;
+      }
+    }
+  }
+}
+
+class SampleSettingTab extends PluginSettingTab {
+	plugin: ImageManagerPlugin;
+
+	constructor(app: App, plugin: ImageManagerPlugin) {
+		super(app, plugin);
+		this.plugin = plugin;
+	}
+
+	display(): void {
+		const {containerEl} = this;
+
+		containerEl.empty();
+
+    new Setting(containerEl)
+      .setName('Sweep Icon')
+      .setDesc('Disable sweep Icon in ribbon')
+      .addToggle(toggle => toggle
+        .setValue(this.plugin.settings.sweepIconEnabled)
+        .onChange(async (value) => {
+          this.plugin.settings.sweepIconEnabled = value;
+          await this.plugin.saveSettings();
+          this.plugin.updateSweepRibbonIcon();
+        }));
   }
 }
