@@ -71,7 +71,8 @@ export default class ImageManagerPlugin extends Plugin {
     for (const md of mdFiles) {
       const content = await vault.cachedRead(md);
       // Regex to match ![[image.png]] or ![](images/image.png) or ![](image.png)
-      const regex = /!\[\[?([^)\]\.]+\.(?:png|jpe?g|gif|svg|bmp|webp))\]?]?/gi;
+      // const regex = /!\[\[?([^)\]\.]+\.(?:png|jpe?g|gif|svg|bmp|webp))\]?]?/gi;
+      const regex = /!\[\[?([^\]\)]+?\.(?:png|jpe?g|gif|svg|bmp|webp))\]?]?/gi;
       let m: RegExpExecArray | null;
       while ((m = regex.exec(content))) {
         let ref = m[1];
